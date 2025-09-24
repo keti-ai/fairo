@@ -96,7 +96,7 @@ add_library(
 target_link_libraries(generated_grpc_protos
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
-    ${_PROTOBUF_LIBPROTOBUF}
+    protobuf::libprotobuf
 )
 
 include_directories(
