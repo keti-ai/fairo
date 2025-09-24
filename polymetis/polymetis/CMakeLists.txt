@@ -87,7 +87,7 @@ add_custom_command(
 )
 
 add_library(
-    generated_grpc_protos SHARED
+    generated_grpc_protos STATIC
       ${loader_proto_srcs}
       ${loader_proto_hdrs}
       ${loader_grpc_srcs}
@@ -97,11 +97,6 @@ target_link_libraries(generated_grpc_protos
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
     ${_PROTOBUF_LIBPROTOBUF}
-)
-# Set RPATH for shared library to find conda protobuf
-set_target_properties(generated_grpc_protos PROPERTIES
-    BUILD_RPATH "$ENV{CONDA_PREFIX}/lib"
-    INSTALL_RPATH "$ENV{CONDA_PREFIX}/lib"
 )
 
 include_directories(
@@ -133,12 +128,16 @@ set_target_properties(run_server PROPERTIES
 )
 target_link_libraries(run_server
     polymetis_server
+    -Wl,--start-group
+    -Wl,--whole-archive
     generated_grpc_protos
+    -Wl,--no-whole-archive
     protobuf::libprotobuf
     gRPC::grpc++
     absl::strings
     re2
     pthread
+    -Wl,--end-group
 )
 
 # Ensure linker does not drop shared libs due to --as-needed
