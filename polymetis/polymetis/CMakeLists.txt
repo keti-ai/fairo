@@ -119,6 +119,9 @@ target_sources(run_server PRIVATE $<TARGET_OBJECTS:generated_grpc_protos_objs>)
 target_link_libraries(run_server
     polymetis_server
     ${Protobuf_LIBRARIES}
+    -Wl,--start-group
+    ${Protobuf_LIBRARIES}
+    -Wl,--end-group
     gRPC::grpc++
     absl::strings
     re2
