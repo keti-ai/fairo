@@ -125,7 +125,9 @@ add_executable(run_server "src/run_server.cpp")
 target_link_libraries(run_server
     polymetis_server
     -Wl,--start-group
+    -Wl,--whole-archive
     generated_grpc_protos
+    -Wl,--no-whole-archive
     protobuf::libprotobuf
     gRPC::grpc++
     absl::strings
@@ -133,6 +135,9 @@ target_link_libraries(run_server
     pthread
     -Wl,--end-group
 )
+
+# Ensure linker does not drop shared libs due to --as-needed
+target_link_options(run_server PRIVATE -Wl,--no-as-needed)
 
 # Add test client
 add_executable(empty_statistics_client "src/clients/empty_statistics_client.cpp"
