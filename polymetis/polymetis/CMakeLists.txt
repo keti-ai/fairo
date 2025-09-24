@@ -86,11 +86,7 @@ add_library(generated_grpc_protos_objs OBJECT
       ${loader_grpc_srcs}
       ${loader_grpc_hdrs}
 )
-target_link_libraries(generated_grpc_protos_objs
-    ${_REFLECTION}
-    ${_GRPC_GRPCPP}
-    Protobuf::libprotobuf
-)
+# OBJECT 라이브러리는 링크 대상이 아님. 필요 라이브러리는 최종 타깃에서 링크
 
 include_directories(
     include
@@ -122,7 +118,7 @@ set_target_properties(run_server PROPERTIES
 target_sources(run_server PRIVATE $<TARGET_OBJECTS:generated_grpc_protos_objs>)
 target_link_libraries(run_server
     polymetis_server
-    Protobuf::libprotobuf
+    ${Protobuf_LIBRARIES}
     gRPC::grpc++
     absl::strings
     re2
