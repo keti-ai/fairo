@@ -87,7 +87,7 @@ add_custom_command(
 )
 
 add_library(
-    generated_grpc_protos SHARED
+    generated_grpc_protos STATIC
       ${loader_proto_srcs}
       ${loader_proto_hdrs}
       ${loader_grpc_srcs}
@@ -125,7 +125,9 @@ add_executable(run_server "src/run_server.cpp")
 target_link_libraries(run_server
     polymetis_server
     -Wl,--start-group
+    -Wl,--whole-archive
     generated_grpc_protos
+    -Wl,--no-whole-archive
     protobuf::libprotobuf
     gRPC::grpc++
     absl::strings
