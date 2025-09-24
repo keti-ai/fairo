@@ -200,14 +200,14 @@ if(BUILD_FRANKA)
   message("Compiling Franka client with libfranka from ${Franka_DIR}")
   find_package(Franka REQUIRED)
 
-  include_directories(
-    ${Franka_INCLUDE_DIRS}
-  )
+  # Scope Franka includes to Franka client targets only to avoid leaking
+  # /usr/local/include into protobuf/grpc builds
 
   # Add Franka clients
   add_executable(franka_panda_client
       src/clients/franka_panda_client/franka_panda_client.cpp
   )
+  target_include_directories(franka_panda_client PRIVATE ${Franka_INCLUDE_DIRS})
   target_link_libraries(franka_panda_client
       generated_grpc_protos
       Franka::Franka
@@ -218,6 +218,7 @@ if(BUILD_FRANKA)
   add_executable(franka_hand_client 
       src/clients/franka_panda_client/franka_hand_client.cpp
   )
+  target_include_directories(franka_hand_client PRIVATE ${Franka_INCLUDE_DIRS})
   target_link_libraries(franka_hand_client
       generated_grpc_protos
       Franka::Franka
