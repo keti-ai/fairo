@@ -8,18 +8,12 @@ project(polymetis)
 set(CMAKE_CXX_FLAGS "-std=c++14")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-add_library(protobuf::libprotobuf UNKNOWN IMPORTED)
-set_target_properties(protobuf::libprotobuf PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "$ENV{CONDA_PREFIX}/include/google/protobuf/")
-set_target_properties(protobuf::libprotobuf PROPERTIES
-  IMPORTED_LOCATION "$ENV{CONDA_PREFIX}/lib/libprotobuf.so")
-set_property(TARGET protobuf::libprotobuf APPEND PROPERTY
-  INTERFACE_COMPILE_FEATURES cxx_std_11
-)
+# Protobuf (use standard CMake FindProtobuf to ensure headers/protoc/lib are consistent)
+find_package(Protobuf REQUIRED)
 
 add_subdirectory("torch_isolation/")
 
-add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
+# Avoid forcing a global ABI macro; rely on toolchain defaults
 
 if(DEFINED ENV{PREFIX})
   message("Using $ENV{PREFIX} as output dir")
@@ -86,17 +80,16 @@ add_custom_command(
       "${loader_proto}"
 )
 
-add_library(
-    generated_grpc_protos SHARED
+add_library(generated_grpc_protos_objs OBJECT
       ${loader_proto_srcs}
       ${loader_proto_hdrs}
       ${loader_grpc_srcs}
       ${loader_grpc_hdrs}
 )
-target_link_libraries(generated_grpc_protos
+target_link_libraries(generated_grpc_protos_objs
     ${_REFLECTION}
     ${_GRPC_GRPCPP}
-    protobuf::libprotobuf
+    Protobuf::libprotobuf
 )
 
 include_directories(
@@ -112,8 +105,8 @@ include_directories(
 # Add server
 add_library(polymetis_server "src/polymetis_server.cpp")
 
+target_sources(polymetis_server PRIVATE $<TARGET_OBJECTS:generated_grpc_protos_objs>)
 target_link_libraries(polymetis_server
-    generated_grpc_protos
     yaml-cpp
     spdlog::spdlog
 )
@@ -126,10 +119,10 @@ set_target_properties(run_server PROPERTIES
     BUILD_RPATH "$ENV{CONDA_PREFIX}/lib"
     INSTALL_RPATH "$ENV{CONDA_PREFIX}/lib"
 )
+target_sources(run_server PRIVATE $<TARGET_OBJECTS:generated_grpc_protos_objs>)
 target_link_libraries(run_server
     polymetis_server
-    generated_grpc_protos
-    protobuf::libprotobuf
+    Protobuf::libprotobuf
     gRPC::grpc++
     absl::strings
     re2
