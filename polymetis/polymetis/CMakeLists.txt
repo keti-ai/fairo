@@ -122,7 +122,15 @@ target_link_libraries(polymetis_server -Wl,--no-as-needed torchrot)
 target_link_libraries(polymetis_server -Wl,--no-as-needed torch_server_ops)
 
 add_executable(run_server "src/run_server.cpp")
-target_link_libraries(run_server polymetis_server)
+target_link_libraries(run_server
+    polymetis_server
+    generated_grpc_protos
+    protobuf::libprotobuf
+    gRPC::grpc++
+    absl::strings
+    re2
+    pthread
+)
 
 # Add test client
 add_executable(empty_statistics_client "src/clients/empty_statistics_client.cpp"
