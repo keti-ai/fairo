@@ -87,7 +87,7 @@ add_custom_command(
 )
 
 add_library(
-    generated_grpc_protos STATIC
+    generated_grpc_protos SHARED
       ${loader_proto_srcs}
       ${loader_proto_hdrs}
       ${loader_grpc_srcs}
@@ -128,16 +128,12 @@ set_target_properties(run_server PROPERTIES
 )
 target_link_libraries(run_server
     polymetis_server
-    -Wl,--start-group
-    -Wl,--whole-archive
     generated_grpc_protos
-    -Wl,--no-whole-archive
     protobuf::libprotobuf
     gRPC::grpc++
     absl::strings
     re2
     pthread
-    -Wl,--end-group
 )
 
 # Ensure linker does not drop shared libs due to --as-needed
