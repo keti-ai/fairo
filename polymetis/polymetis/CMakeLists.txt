@@ -201,7 +201,12 @@ if(BUILD_FRANKA)
   )
   target_include_directories(franka_panda_client PRIVATE ${Franka_INCLUDE_DIRS})
   target_link_libraries(franka_panda_client
-      generated_grpc_protos
+      generated_grpc_protos_objs
+      ${Protobuf_LIBRARIES}
+      gRPC::grpc++
+      absl::strings
+      re2
+      pthread
       Franka::Franka
       yaml-cpp
       spdlog::spdlog
@@ -212,7 +217,12 @@ if(BUILD_FRANKA)
   )
   target_include_directories(franka_hand_client PRIVATE ${Franka_INCLUDE_DIRS})
   target_link_libraries(franka_hand_client
-      generated_grpc_protos
+      generated_grpc_protos_objs
+      ${Protobuf_LIBRARIES}
+      gRPC::grpc++
+      absl::strings
+      re2
+      pthread
       Franka::Franka
       yaml-cpp
       spdlog::spdlog
